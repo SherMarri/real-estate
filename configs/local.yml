@@ -1,0 +1,2 @@
+db:
+  url: postgresql://postgres:@db:5432/zameen_data

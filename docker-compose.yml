@@ -1,0 +1,32 @@
+version: "3.3"
+services:
+  crawlerapi:
+    build:
+      context: .
+      dockerfile: ./server/Dockerfile
+    container_name: "crawlerapi"
+    env_file: .env
+    ports:
+      - "5050:5050"
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+    command: uwsgi --ini=uwsgi.ini --workers=1
+    depends_on:
+      - db
+  db:
+    image: "postgres:12.3"
+    container_name: "db"
+    environment:
+      POSTGRES_DB: "zameen_data"
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_volume:/var/lib/postgresql/data
+    command: -p 5432
+
+
+volumes:
+  db_volume:
