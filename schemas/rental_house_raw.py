@@ -12,7 +12,6 @@ class RentalPropertyRaw(Model):
     area = types.StringType()
     beds = types.StringType()
     bathrooms = types.StringType()
-    area = types.StringType()
     link = types.StringType()
     date_added_on_zameen = types.StringType()
     date_updated_on_zameen = types.StringType()
