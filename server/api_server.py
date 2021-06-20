@@ -1,10 +1,12 @@
 import logging
 from logging.handlers import RotatingFileHandler
+from operator import imod
 import os
 from utils.config import CONFIG, init_from_file
 from schemas.job import Job
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from services.crawler_service import crawler_service
 
 
@@ -40,6 +42,7 @@ def setup_db_configs(app: Flask):
     DATABASE_URI = {"zameen_data": CONFIG.get("db", "url")}
     app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URI["zameen_data"]
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    application.config["SQLALCHEMY_BINDS"] = {}
 
 
 
@@ -48,6 +51,9 @@ setup_logger(application)
 setup_config(application)
 setup_db_configs(application)
 db = SQLAlchemy(application)
+migrate = Migrate(application, db)
+from all_models import import_models
+import_models()  # To enable auto-generate migrations
 
 
 @application.before_request
