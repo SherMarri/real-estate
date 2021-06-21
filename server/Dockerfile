@@ -26,7 +26,7 @@ RUN mkdir -p /log && \
     touch /tmp/log_uwsgi.log
 # 5050 gets connected to the reverse proxy in EB
 EXPOSE 5050
-ENV PYTHONPATH=. 
-
+ENV PYTHONPATH=. \
+    prometheus_multiproc_dir=/var/tmp/uwsgi_flask_metrics
 CMD [ "uwsgi", "--ini=uwsgi.ini" ]
 # *** END service-specific customizations

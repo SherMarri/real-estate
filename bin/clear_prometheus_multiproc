@@ -1,0 +1,17 @@
+#!/bin/bash
+# Clear out a Prometheus Python client multiprocessing directory.
+# Intended to be run as a uWSGI hook when starting Flask servers.
+#
+# usage: clear_prometheus_multiproc <path> [user] [group]
+#        directory `path` will be removed and recreated with
+#        ownership `user:group`, by default `${USER}:${USER}`
+#        Parent directory is assumed to exist.
+set -ex
+
+path="${1:?'usage: clear_prometheus_multiproc <path> [user] [group]'}"
+user="${2:-${USER}}"
+group="${3:-${USER}}"
+
+rm -Rf ${path}
+mkdir --mode 755 ${path}
+chown ${user}:${group} ${path}

@@ -26,7 +26,27 @@ services:
     volumes:
       - db_volume:/var/lib/postgresql/data
     command: -p 5432
-
+  prometheus:
+    image: "prom/prometheus"
+    container_name: "real_estate_prometheus"
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/local_prometheus.yml:/etc/prometheus/prometheus.yml
+  pushgateway:
+    image: "prom/pushgateway"
+    container_name: "real_estate_pushgateway"
+    ports:
+      - "9091:9091"
+  grafana:
+    image: grafana/grafana
+    container_name: "real_estate_grafana"
+    volumes:
+      - ./grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yaml
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
 
 volumes:
   db_volume:

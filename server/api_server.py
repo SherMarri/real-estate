@@ -1,13 +1,17 @@
 import logging
+import os
 from logging.handlers import RotatingFileHandler
 from operator import imod
-import os
-from utils.config import CONFIG, init_from_file
-from schemas.job import Job
+
 from flask import Flask, request
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_sqlalchemy import SQLAlchemy
+from prometheus_client import CollectorRegistry, multiprocess, generate_latest
+from schemas.job import Job
 from services.crawler_service import crawler_service
+from utils.config import CONFIG, init_from_file
+
+from server.metrics import api_requests_total
 
 
 def get_env():
@@ -45,7 +49,8 @@ def setup_db_configs(app: Flask):
     application.config["SQLALCHEMY_BINDS"] = {}
 
 
-
+registry = CollectorRegistry()
+multiprocess.MultiProcessCollector(registry)
 application = Flask(__name__)
 setup_logger(application)
 setup_config(application)
@@ -53,13 +58,21 @@ setup_db_configs(application)
 db = SQLAlchemy(application)
 migrate = Migrate(application, db)
 from all_models import import_models
+
 import_models()  # To enable auto-generate migrations
 
 
 @application.before_request
 def log_request():
     """Prints requests to standard output."""
+    if request.path != "/metrics":
+        api_requests_total.inc()
     application.logger.info(request)
+
+
+@application.route('/metrics')
+def get_metrics():
+    return generate_latest(registry)
 
 
 @application.route('/')
